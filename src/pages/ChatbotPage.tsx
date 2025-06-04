@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Send, ChevronRight } from 'lucide-react';
+import { Send, ChevronRight, ChevronLeft, MessageCircle, ThumbsUp, Share2, MoreHorizontal } from 'lucide-react';
 
 interface Agent {
   id: string;
@@ -14,6 +14,20 @@ interface Message {
   text: string;
   sender: 'user' | 'bot';
   timestamp: Date;
+}
+
+interface TopicThread {
+  id: string;
+  title: string;
+  author: {
+    name: string;
+    avatar: string;
+    role: string;
+  };
+  content: string;
+  likes: number;
+  replies: number;
+  timestamp: string;
 }
 
 const agents: Agent[] = [
@@ -64,12 +78,60 @@ const topics = [
   'News'
 ];
 
+const sampleThreads: Record<string, TopicThread[]> = {
+  'Forum': [
+    {
+      id: '1',
+      title: 'Best practices for event planning',
+      author: {
+        name: 'Sarah Chen',
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=sarah',
+        role: 'Event Planner'
+      },
+      content: 'I've been organizing events for 5 years and wanted to share some key insights...',
+      likes: 124,
+      replies: 45,
+      timestamp: '2 hours ago'
+    },
+    {
+      id: '2',
+      title: 'How to choose the perfect venue',
+      author: {
+        name: 'Michael Ross',
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=michael',
+        role: 'Venue Coordinator'
+      },
+      content: 'The venue sets the tone for your entire event. Here's what to consider...',
+      likes: 89,
+      replies: 32,
+      timestamp: '4 hours ago'
+    }
+  ],
+  'Support': [
+    {
+      id: '3',
+      title: 'Common issues and solutions',
+      author: {
+        name: 'Tech Support Team',
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=support',
+        role: 'Support Specialist'
+      },
+      content: 'Here are the most common issues users face and how to resolve them...',
+      likes: 156,
+      replies: 78,
+      timestamp: '1 day ago'
+    }
+  ]
+};
+
 const ChatbotPage: React.FC = () => {
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
   const [selectedAbility, setSelectedAbility] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [expandedAgent, setExpandedAgent] = useState<string | null>(null);
+  const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
+  const [isTopicExpanded, setIsTopicExpanded] = useState(false);
 
   const handleSendMessage = () => {
     if (!inputMessage.trim()) return;
@@ -84,7 +146,6 @@ const ChatbotPage: React.FC = () => {
     setMessages([...messages, newMessage]);
     setInputMessage('');
 
-    // Simulate bot response
     setTimeout(() => {
       const botResponse: Message = {
         id: (Date.now() + 1).toString(),
@@ -110,10 +171,17 @@ const ChatbotPage: React.FC = () => {
     setSelectedAbility(ability);
   };
 
+  const handleTopicClick = (topic: string) => {
+    setSelectedTopic(topic);
+    setIsTopicExpanded(true);
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 flex">
       {/* Left Sidebar - AI Agents */}
-      <div className="w-64 bg-white border-r border-slate-200 flex flex-col py-6">
+      <div className={`bg-white border-r border-slate-200 flex flex-col py-6 transition-all duration-300 ${
+        isTopicExpanded ? 'w-48' : 'w-64'
+      }`}>
         <h2 className="px-6 text-lg font-semibold text-slate-800 mb-4">AI Agents</h2>
         <div className="space-y-1 px-4">
           {agents.map(agent => (
@@ -226,21 +294,74 @@ const ChatbotPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Right Sidebar - Topics */}
-      <div className="w-24 bg-white border-l border-slate-200 flex flex-col items-center py-6">
-        {topics.map(topic => (
-          <div
-            key={topic}
-            className="w-full h-24 flex items-center justify-center cursor-pointer hover:bg-slate-50 transition-colors"
+      {/* Right Section - Topics */}
+      <div className={`bg-white border-l border-slate-200 flex flex-col transition-all duration-300 ${
+        isTopicExpanded ? 'w-96' : 'w-24'
+      }`}>
+        <div className="p-4 border-b border-slate-200 flex justify-between items-center">
+          <h3 className={`font-medium text-slate-800 ${!isTopicExpanded && 'sr-only'}`}>Topics</h3>
+          <button
+            onClick={() => setIsTopicExpanded(!isTopicExpanded)}
+            className="p-2 hover:bg-slate-100 rounded-full"
           >
-            <span 
-              className="transform -rotate-90 whitespace-nowrap text-slate-600 hover:text-blue-600 transition-colors"
-              style={{ transformOrigin: 'center' }}
-            >
-              {topic}
-            </span>
+            {isTopicExpanded ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+          </button>
+        </div>
+
+        {isTopicExpanded ? (
+          <div className="flex-1 overflow-y-auto p-4">
+            {selectedTopic && sampleThreads[selectedTopic]?.map(thread => (
+              <div key={thread.id} className="mb-6 bg-white rounded-lg border border-slate-200 p-4">
+                <div className="flex items-start gap-3 mb-3">
+                  <img
+                    src={thread.author.avatar}
+                    alt={thread.author.name}
+                    className="w-10 h-10 rounded-full"
+                  />
+                  <div>
+                    <h4 className="font-medium text-slate-900">{thread.author.name}</h4>
+                    <p className="text-xs text-slate-500">{thread.author.role}</p>
+                  </div>
+                </div>
+                <h3 className="text-lg font-medium text-slate-900 mb-2">{thread.title}</h3>
+                <p className="text-slate-600 mb-4">{thread.content}</p>
+                <div className="flex items-center gap-4 text-sm text-slate-500">
+                  <button className="flex items-center gap-1 hover:text-blue-600">
+                    <ThumbsUp size={16} />
+                    <span>{thread.likes}</span>
+                  </button>
+                  <button className="flex items-center gap-1 hover:text-blue-600">
+                    <MessageCircle size={16} />
+                    <span>{thread.replies}</span>
+                  </button>
+                  <button className="flex items-center gap-1 hover:text-blue-600">
+                    <Share2 size={16} />
+                  </button>
+                  <span className="ml-auto text-xs">{thread.timestamp}</span>
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
+        ) : (
+          <div className="flex-1 flex flex-col">
+            {topics.map(topic => (
+              <button
+                key={topic}
+                onClick={() => handleTopicClick(topic)}
+                className={`h-24 flex items-center justify-center cursor-pointer hover:bg-slate-50 transition-colors ${
+                  selectedTopic === topic ? 'bg-slate-100' : ''
+                }`}
+              >
+                <span 
+                  className="transform -rotate-90 whitespace-nowrap text-slate-600 hover:text-blue-600 transition-colors"
+                  style={{ transformOrigin: 'center' }}
+                >
+                  {topic}
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
