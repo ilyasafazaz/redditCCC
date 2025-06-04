@@ -231,7 +231,9 @@ const ChatbotPage: React.FC = () => {
       </div>
 
       {/* Middle Section - Chat */}
-      <div className="flex-1 flex flex-col max-h-screen">
+      <div className={`flex-1 flex flex-col max-h-screen transition-all duration-300 ${
+        isTopicExpanded ? 'w-[25%]' : 'w-[60%]'
+      }`}>
         {/* Chat Header */}
         <div className="h-16 bg-white border-b border-slate-200 flex items-center px-6">
           {selectedAgent ? (
@@ -296,7 +298,7 @@ const ChatbotPage: React.FC = () => {
 
       {/* Right Section - Topics */}
       <div className={`bg-white border-l border-slate-200 flex flex-col transition-all duration-300 ${
-        isTopicExpanded ? 'w-96' : 'w-24'
+        isTopicExpanded ? 'w-[60%]' : 'w-24'
       }`}>
         <div className="p-4 border-b border-slate-200 flex justify-between items-center">
           <h3 className={`font-medium text-slate-800 ${!isTopicExpanded && 'sr-only'}`}>Topics</h3>
