@@ -88,7 +88,7 @@ const sampleThreads: Record<string, TopicThread[]> = {
         avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=sarah',
         role: 'Event Planner'
       },
-      content: 'I've been organizing events for 5 years and wanted to share some key insights...',
+      content: 'I\'ve been organizing events for 5 years and wanted to share some key insights...',
       likes: 124,
       replies: 45,
       timestamp: '2 hours ago'
@@ -101,7 +101,7 @@ const sampleThreads: Record<string, TopicThread[]> = {
         avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=michael',
         role: 'Venue Coordinator'
       },
-      content: 'The venue sets the tone for your entire event. Here's what to consider...',
+      content: 'The venue sets the tone for your entire event. Here\'s what to consider...',
       likes: 89,
       replies: 32,
       timestamp: '4 hours ago'
